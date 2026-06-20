@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BloodSense Real-Time Map Navigation</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: #121214;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #FFFFFF;
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+        .instruction-panel {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            right: 12px;
+            z-index: 1000;
+            background: rgba(30, 30, 35, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 14px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            max-height: 120px;
+            overflow-y: auto;
+        }
+        .instruction-title {
+            font-weight: bold;
+            color: #30D158;
+            margin-bottom: 4px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .instruction-text {
+            color: #E5E5EA;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        /* Custom markers styling */
+        .user-marker {
+            background-color: #007AFF;
+            border: 3px solid #FFFFFF;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0,122,255,0.6);
+            width: 16px !important;
+            height: 16px !important;
+        }
+        .bank-marker {
+            background-color: #FF3B30;
+            border: 3px solid #FFFFFF;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255,59,48,0.6);
+            width: 18px !important;
+            height: 18px !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="instruction-panel">
+        <div class="instruction-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+            Navigation Instructions
+        </div>
+        <div id="instruction-step" class="instruction-text">Calculating optimal route to blood bank...</div>
+    </div>
+
+    <div id="map"></div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script>
+        // Parse URL params
+        const urlParams = new URLSearchParams(window.location.search);
+        const fallbackLat = parseFloat(urlParams.get('lat') || '13.0827');
+        const fallbackLng = parseFloat(urlParams.get('lng') || '80.2707');
+        const bankLat = parseFloat(urlParams.get('bankLat') || '13.0067');
+        const bankLng = parseFloat(urlParams.get('bankLng') || '80.2206');
+        const apiKey = urlParams.get('apiKey') || '1d6b9e8325e840f48096e1063e04ffe6';
+
+        // Initialize Leaflet Map
+        const map = L.map('map', {
+            zoomControl: false
+        }).setView([fallbackLat, fallbackLng], 13);
+
+        // Add Leaflet Zoom Control at bottom right
+        L.control.zoom({
+            position: 'bottomright'
+        }).addTo(map);
+
+        // Add Dark Mode/Custom OSM style tiles from Geoapify
+        L.tileLayer(`https://maps.geoapify.com/v1/tile/dark-matter/{z}/{x}/{y}.png?apiKey=${apiKey}`, {
+            attribution: 'Powered by <a href="https://www.geoapify.com/" target="_blank">Geoapify</a> | <a href="https://www.openstreetmap.org/copyright" target="_blank">© OpenStreetMap contributors</a>',
+            maxZoom: 20
+        }).addTo(map);
+
+        // Create Custom Icons
+        const userIcon = L.divIcon({
+            className: 'user-marker',
+            iconSize: [16, 16],
+            iconAnchor: [8, 8]
+        });
+
+        const bankIcon = L.divIcon({
+            className: 'bank-marker',
+            iconSize: [18, 18],
+            iconAnchor: [9, 9]
+        });
+
+        // Add Target Blood Bank Marker
+        L.marker([bankLat, bankLng], {icon: bankIcon}).addTo(map).bindPopup('Target Blood Bank').openPopup();
+
+        let userMarker = null;
+
+        function loadRoute(startLat, startLng) {
+            if (userMarker) {
+                userMarker.setLatLng([startLat, startLng]);
+            } else {
+                userMarker = L.marker([startLat, startLng], {icon: userIcon}).addTo(map).bindPopup('My Live Location');
+            }
+
+            // Fit map bounds to fit both points initially
+            const bounds = L.latLngBounds([[startLat, startLng], [bankLat, bankLng]]);
+            map.fitBounds(bounds, { padding: [50, 50] });
+
+            // Call Geoapify Routing API to trace real roads
+            const routingUrl = `https://api.geoapify.com/v1/routing?waypoints=${startLat},${startLng}|${bankLat},${bankLng}&mode=drive&apiKey=${apiKey}`;
+
+            fetch(routingUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.features && data.features.length > 0) {
+                        const routeFeature = data.features[0];
+                        
+                        // Draw route line
+                        L.geoJSON(routeFeature, {
+                            style: {
+                                color: '#007AFF',
+                                weight: 5,
+                                opacity: 0.8
+                            }
+                        }).addTo(map);
+                        
+                        // Parse navigation steps
+                        if (routeFeature.properties && routeFeature.properties.legs && routeFeature.properties.legs[0].steps) {
+                            const steps = routeFeature.properties.legs[0].steps;
+                            let index = 0;
+                            
+                            function showNextStep() {
+                                if (index < steps.length) {
+                                    const step = steps[index];
+                                    document.getElementById('instruction-step').innerHTML = `<b>In ${Math.round(step.distance)}m:</b> ${step.instruction.text}`;
+                                    
+                                    // Cycle through steps as a demo simulation
+                                    setTimeout(() => {
+                                        index++;
+                                        if (index >= steps.length) index = 0; // Loop back
+                                        showNextStep();
+                                    }, 5000);
+                                }
+                            }
+                            showNextStep();
+                        } else {
+                            document.getElementById('instruction-step').innerText = "Follow route markers towards target Blood Bank.";
+                        }
+                    } else {
+                        // Fallback to straight line if API fails or route not found
+                        L.polyline([[startLat, startLng], [bankLat, bankLng]], {color: '#FF3B30', weight: 4, dashArray: '8, 8'}).addTo(map);
+                        document.getElementById('instruction-step').innerText = "Routing path unavailable. Follow straight-line bearings.";
+                    }
+                })
+                .catch(err => {
+                    console.error("Routing error:", err);
+                    L.polyline([[startLat, startLng], [bankLat, bankLng]], {color: '#FF3B30', weight: 4, dashArray: '8, 8'}).addTo(map);
+                    document.getElementById('instruction-step').innerText = "Offline mode: showing straight-line coordinate bearings.";
+                });
+        }
+
+        // Try browser geolocation first for exact real-time start location
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const liveLat = position.coords.latitude;
+                    const liveLng = position.coords.longitude;
+                    console.log("Real-time live starting point:", liveLat, liveLng);
+                    loadRoute(liveLat, liveLng);
+                },
+                (error) => {
+                    console.warn("Geolocation permission or access denied, using default:", error);
+                    loadRoute(fallbackLat, fallbackLng);
+                },
+                { enableHighAccuracy: true, timeout: 5000 }
+            );
+        } else {
+            loadRoute(fallbackLat, fallbackLng);
+        }
+    </script>
+</body>
+</html>
