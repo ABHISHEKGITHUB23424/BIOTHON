@@ -107,6 +107,52 @@ class LocalDatabase {
     await init();
   }
 
+  // Syncs bank inventory from external API feed
+  Future<void> syncBankInventory(int bankId, List<dynamic> items) async {
+    await init();
+    final table = _tables['blood_inventory'] ?? [];
+    
+    for (var item in items) {
+      final bg = item['blood_group'] as String;
+      final units = (item['units_available'] as num).toDouble();
+      final expiring = (item['units_expiring_3days'] as num).toDouble();
+      
+      // Find existing row
+      int foundIndex = -1;
+      for (int i = 0; i < table.length; i++) {
+        if (table[i]['bank_id'] == bankId && table[i]['blood_group'] == bg) {
+          foundIndex = i;
+          break;
+        }
+      }
+      
+      if (foundIndex != -1) {
+        // Update existing row
+        table[foundIndex]['units_available'] = units;
+        table[foundIndex]['units_expiring_3days'] = expiring;
+        table[foundIndex]['last_updated'] = DateTime.now().toIso8601String();
+      } else {
+        // Insert new row
+        int maxId = 0;
+        for (var r in table) {
+          final idVal = r['inventory_id'] as int? ?? 0;
+          if (idVal > maxId) maxId = idVal;
+        }
+        final newId = maxId + 1;
+        table.add({
+          'inventory_id': newId,
+          'bank_id': bankId,
+          'blood_group': bg,
+          'units_available': units,
+          'units_expiring_3days': expiring,
+          'last_updated': DateTime.now().toIso8601String(),
+        });
+      }
+    }
+    _tables['blood_inventory'] = table;
+    await _saveTable('blood_inventory');
+  }
+
   // Seeding Logic
   Future<void> seedDatabase() async {
     print('Seeding local database...');

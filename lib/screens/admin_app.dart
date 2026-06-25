@@ -29,17 +29,58 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   List<String> _bloodGroupsOrder = ["O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"];
   String _activeSort = 'default';
 
+  // Live Sync Fields
+  bool _isLiveSync = true;
+  Timer? _syncTimer;
+
   @override
   void initState() {
     super.initState();
     _refreshData();
+    _startLiveSyncTimer();
   }
 
-  Future<void> _refreshData() async {
+  @override
+  void dispose() {
+    _syncTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startLiveSyncTimer() {
+    _syncTimer?.cancel();
+    _syncTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
+      if (_isLiveSync && !_isLoading) {
+        _syncLiveInventory();
+      }
+    });
+  }
+
+  Future<void> _syncLiveInventory() async {
+    final state = Provider.of<AppState>(context, listen: false);
+    if (state.bankId == null) return;
+
+    try {
+      final response = await http.get(Uri.parse('http://localhost:8081/api/inventory?bank_id=${state.bankId}'));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data != null && data['inventory'] != null) {
+          final items = data['inventory'] as List;
+          await LocalDatabase.instance.syncBankInventory(state.bankId!, items);
+          await _refreshData(quiet: true);
+        }
+      }
+    } catch (e) {
+      debugPrint("Error syncing live inventory: $e");
+    }
+  }
+
+  Future<void> _refreshData({bool quiet = false}) async {
     final state = Provider.of<AppState>(context, listen: false);
     if (state.bankId == null) return;
     
-    setState(() => _isLoading = true);
+    if (!quiet) {
+      setState(() => _isLoading = true);
+    }
     
     try {
       await LocalDatabase.instance.init();
@@ -67,15 +108,19 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       // 3. Get Local Alert History
       final alertsTable = LocalDatabase.instance.getTable('shortage_alerts').where((a) => a['bank_id'] == state.bankId).toList();
 
-      setState(() {
-        _inventory = invMap;
-        _bssiScores = bssiMap;
-        _alertHistory = alertsTable;
-        _applyActiveSort();
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _inventory = invMap;
+          _bssiScores = bssiMap;
+          _alertHistory = alertsTable;
+          _applyActiveSort();
+          if (!quiet) _isLoading = false;
+        });
+      }
     } catch (e) {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
       print("Error refreshing admin dashboard: $e");
     }
   }
@@ -119,9 +164,57 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       appBar: AppBar(
         title: Text('${state.name} Admin'),
         actions: [
+          // Live Sync Status Icon & Toggle Button
+          Tooltip(
+            message: _isLiveSync ? 'Live Sync Active (RaktSetu Feed)' : 'Live Sync Paused',
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (_isLiveSync)
+                  Container(
+                    margin: const EdgeInsets.only(right: 2),
+                    width: 8,
+                    height: 8,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF30D158),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Color(0x8030D158),
+                          blurRadius: 6,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
+                  ),
+                IconButton(
+                  icon: Icon(
+                    _isLiveSync ? Icons.sensors : Icons.sensors_off,
+                    color: _isLiveSync ? const Color(0xFF30D158) : Colors.white54,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _isLiveSync = !_isLiveSync;
+                      if (_isLiveSync) {
+                        _syncLiveInventory();
+                      }
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(_isLiveSync 
+                            ? 'Live RaktSetu Feed Sync Enabled (updates every 4s)' 
+                            : 'Live Sync Disabled (manual database mode active)'),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: _refreshData,
+            onPressed: () => _refreshData(),
           ),
           IconButton(
             icon: const Icon(Icons.logout),
@@ -172,9 +265,19 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 return Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Inventory & Shortage Severity Index (BSSI)',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey),
+                    Row(
+                      children: [
+                        const Text(
+                          'Inventory & Shortage Severity Index (BSSI)',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey),
+                        ),
+                        const SizedBox(width: 8),
+                        if (_isLiveSync)
+                          const Text(
+                            '(Live Sync Active)',
+                            style: TextStyle(fontSize: 12, color: Color(0xFF30D158), fontWeight: FontWeight.w600),
+                          ),
+                      ],
                     ),
                     _buildSortRow(),
                   ],
@@ -183,9 +286,19 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Inventory & Shortage Severity Index (BSSI)',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey),
+                    Row(
+                      children: [
+                        const Text(
+                          'Inventory & Shortage Severity Index (BSSI)',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey),
+                        ),
+                        const SizedBox(width: 8),
+                        if (_isLiveSync)
+                          const Text(
+                            '(Live)',
+                            style: TextStyle(fontSize: 12, color: Color(0xFF30D158), fontWeight: FontWeight.w600),
+                          ),
+                      ],
                     ),
                     const SizedBox(height: 12),
                     SingleChildScrollView(
