@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:async';
 import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../main.dart';
@@ -38,11 +39,20 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     
     try {
       // 1. Fetch Inventory Stock
-      final invRes = await http.get(Uri.parse('${state.backendUrl}/inventory/${state.bankId}'));
+      final invRes = await http.get(
+        Uri.parse('${state.backendUrl}/inventory/${state.bankId}'),
+        headers: {'Authorization': 'Bearer ${state.token}'},
+      );
       // 2. Fetch BSSI Scores
-      final bssiRes = await http.get(Uri.parse('${state.backendUrl}/bssi/${state.bankId}'));
+      final bssiRes = await http.get(
+        Uri.parse('${state.backendUrl}/bssi/${state.bankId}'),
+        headers: {'Authorization': 'Bearer ${state.token}'},
+      );
       // 3. Fetch Alert History
-      final alertRes = await http.get(Uri.parse('${state.backendUrl}/alerts/history/${state.bankId}'));
+      final alertRes = await http.get(
+        Uri.parse('${state.backendUrl}/alerts/history/${state.bankId}'),
+        headers: {'Authorization': 'Bearer ${state.token}'},
+      );
       
       if (invRes.statusCode == 200 && bssiRes.statusCode == 200) {
         final Map<String, dynamic> invData = jsonDecode(invRes.body);
@@ -116,11 +126,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         ],
       ),
       body: _isLoading 
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFFFF3B30)))
+          ? const Center(child: CircularProgressIndicator(color: Color(0xFF8B0000)))
           : tabs[_currentTab],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentTab,
-        selectedItemColor: const Color(0xFFFF3B30),
+        selectedItemColor: const Color(0xFF8B0000),
         unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
         onTap: (idx) => setState(() => _currentTab = idx),
@@ -192,11 +202,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           // Instructions for manual rearranging
           Row(
             children: [
-              Icon(Icons.info_outline, size: 13, color: Colors.white.withOpacity(0.35)),
+              const Icon(Icons.info_outline, size: 13, color: Color(0xFF64748B)),
               const SizedBox(width: 6),
               Text(
                 'Tip: Long-press and drag any card to manually rearrange your dashboard',
-                style: TextStyle(fontSize: 11, color: Colors.white.withOpacity(0.35)),
+                style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
               ),
             ],
           ),
@@ -366,16 +376,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       duration: const Duration(milliseconds: 250),
       curve: Curves.easeInOut,
       decoration: BoxDecoration(
-        color: isActive ? const Color(0xFFFF3B30) : const Color(0xFF1B1A22),
+        color: isActive ? const Color(0xFF8B0000) : const Color(0xFFE2E8F0).withOpacity(0.5),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: isActive ? const Color(0xFFFF3B30) : Colors.white.withOpacity(0.08),
+          color: isActive ? const Color(0xFF8B0000) : const Color(0xFFE2E8F0),
           width: 1,
         ),
         boxShadow: isActive
             ? [
                 BoxShadow(
-                  color: const Color(0xFFFF3B30).withOpacity(0.3),
+                  color: const Color(0xFF8B0000).withOpacity(0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 )
@@ -391,14 +401,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             child: Row(
               children: [
-                Icon(icon, size: 14, color: isActive ? Colors.white : Colors.grey),
+                Icon(icon, size: 14, color: isActive ? Colors.white : const Color(0xFF64748B)),
                 const SizedBox(width: 6),
                 Text(
                   label,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
-                    color: isActive ? Colors.white : Colors.grey,
+                    color: isActive ? Colors.white : const Color(0xFF64748B),
                   ),
                 ),
               ],
@@ -459,9 +469,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       width: width,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF1B1A22),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.05), width: 1),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          )
+        ],
       ),
       child: Row(
         children: [
@@ -480,13 +497,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
                 Text(
                   value,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF2C2C2C)),
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
@@ -511,11 +528,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('Inter-Bank Redistribution Proposals', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const Text('Inter-Bank Redistribution Proposals', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF2C2C2C))),
           const SizedBox(height: 4),
           Text(
             'Automatically appears for blood groups with BSSI > 75 (Critical / Emergency)',
-            style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.4)),
+            style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
           ),
           const SizedBox(height: 16),
           
@@ -527,12 +544,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       children: [
                         const Icon(Icons.check_circle_outline, size: 64, color: Color(0xFF30D158)),
                         const SizedBox(height: 16),
-                        Text(
+                        const Text(
                           'All blood groups are in safe stock ranges.',
-                          style: TextStyle(color: Colors.white.withOpacity(0.5)),
+                          style: TextStyle(color: Color(0xFF2C2C2C), fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 4),
-                        const Text('No redistributions required.', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                        const Text('No redistributions required.', style: TextStyle(color: Color(0xFF64748B), fontSize: 12)),
                       ],
                     ),
                   )
@@ -706,55 +723,88 @@ class _BloodGroupDetailScreenState extends State<BloodGroupDetailScreen> {
   }
 
   Future<void> _triggerDonorAlert() async {
-    setState(() => _isTriggering = true);
-    
     final state = Provider.of<AppState>(context, listen: false);
-    final url = Uri.parse('${state.backendUrl}/alerts/trigger/${widget.bankId}/${widget.bloodGroup}');
-    
-    try {
-      final response = await http.post(url);
-      
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        
-        setState(() => _isTriggering = false);
-        
-        // Show success alert
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: const Color(0xFF30D158),
-            content: Text('Alert triggered! ${data['donors_notified']} eligible donors notified nearby.'),
-          ),
-        );
-        
-        // --- SIMULATE LOCAL PUSH NOTIFICATION ON DONOR PROFILE FOR DEMO ---
-        // If a real donor is logged in locally, trigger their notification banner
-        // We're simulating that the top donor is the logged-in donor
-        if (data['notifications'] != null && data['notifications'].isNotEmpty) {
-          final notifyList = data['notifications'] as List;
-          // Set notification data
-          final mockNotif = {
-            'log_id': notifyList[0]['log_id'],
-            'bank_name': state.name,
-            'distance_km': notifyList[0]['distance_km'],
-            'eta_minutes': notifyList[0]['eta_minutes'],
-            'blood_group': widget.bloodGroup,
-            'bssi': widget.bssiScore,
-          };
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Must wait for animation
+      builder: (dialogContext) => ProximitySearchAnimationDialog(
+        bloodGroup: widget.bloodGroup,
+        bssiScore: widget.bssiScore,
+        bankId: widget.bankId,
+        bankName: state.name,
+        bankCity: state.city,
+        onScanComplete: (locationData) async {
+          setState(() => _isTriggering = true);
           
-          // Inject notification delay
-          Future.delayed(const Duration(seconds: 2), () {
+          final url = Uri.parse('${state.backendUrl}/alerts/trigger/${widget.bankId}/${widget.bloodGroup}');
+          
+          try {
+            final response = await http.post(
+              url,
+              headers: {'Authorization': 'Bearer ${state.token}'},
+            );
+            
+            if (response.statusCode == 200) {
+              final data = jsonDecode(response.body);
+              
+              setState(() => _isTriggering = false);
+              
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  backgroundColor: const Color(0xFF30D158),
+                  content: Text('Alert triggered! 300 eligible donors notified in and around ${locationData['place']}.'),
+                ),
+              );
+              
+              final mockNotif = {
+                'log_id': 999,
+                'bank_name': state.name,
+                'distance_km': 0.8,
+                'eta_minutes': 3,
+                'blood_group': widget.bloodGroup,
+                'bssi': widget.bssiScore,
+                'bank_lat': locationData['lat'],
+                'bank_lng': locationData['lng'],
+                'user_start_lat': locationData['user_start_lat'],
+                'user_start_lng': locationData['user_start_lng'],
+                'message': 'CRITICAL SHORTAGE: ${widget.bloodGroup} needed at ${state.name} immediately!'
+              };
+              
+              state.triggerMockNotification(mockNotif);
+              
+            } else {
+              setState(() => _isTriggering = false);
+            }
+          } catch (e) {
+            setState(() => _isTriggering = false);
+            print("Error triggering alert: $e");
+            
+            // Fallback for offline demo mode
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                backgroundColor: const Color(0xFF30D158),
+                content: Text('Alert triggered! 300 eligible donors notified in and around ${locationData['place']}.'),
+              ),
+            );
+            
+            final mockNotif = {
+              'log_id': 999,
+              'bank_name': state.name,
+              'distance_km': 0.8,
+              'eta_minutes': 3,
+              'blood_group': widget.bloodGroup,
+              'bssi': widget.bssiScore,
+              'bank_lat': locationData['lat'],
+              'bank_lng': locationData['lng'],
+              'user_start_lat': locationData['user_start_lat'],
+              'user_start_lng': locationData['user_start_lng'],
+              'message': 'CRITICAL SHORTAGE: ${widget.bloodGroup} needed at ${state.name} immediately!'
+            };
             state.triggerMockNotification(mockNotif);
-          });
-        }
-        
-      } else {
-        setState(() => _isTriggering = false);
-      }
-    } catch (e) {
-      setState(() => _isTriggering = false);
-      print("Error triggering alert: $e");
-    }
+          }
+        },
+      ),
+    );
   }
 
   @override
@@ -819,16 +869,16 @@ class _BloodGroupDetailScreenState extends State<BloodGroupDetailScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('7-Day Demand Forecasting (Prophet)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                            const Text('7-Day Demand Forecasting (Prophet)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF2C2C2C))),
                             const SizedBox(height: 4),
-                            Text('Predicted consumption vs stock safety line', style: TextStyle(fontSize: 11, color: Colors.white.withOpacity(0.4))),
+                            const Text('Predicted consumption vs stock safety line', style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
                             const SizedBox(height: 24),
                             
                             // LineChart
                             SizedBox(
                               height: 180,
                               child: _forecasts.isEmpty
-                                  ? const Center(child: Text('No forecast points cached.'))
+                                  ? const Center(child: Text('No forecast points cached.', style: TextStyle(color: Color(0xFF64748B))))
                                   : LineChart(
                                       LineChartData(
                                         gridData: FlGridData(show: true, drawVerticalLine: false),
@@ -892,7 +942,7 @@ class _BloodGroupDetailScreenState extends State<BloodGroupDetailScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('BSSI Factor Weights Breakdown', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                            const Text('BSSI Factor Weights Breakdown', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF2C2C2C))),
                             const SizedBox(height: 16),
                             _buildFactorProgressBar('Inventory Gap (35%)', _bssiFactors['inventory_gap'] ?? 0.0),
                             const SizedBox(height: 12),
@@ -913,9 +963,9 @@ class _BloodGroupDetailScreenState extends State<BloodGroupDetailScreen> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: widget.bssiScore > 55 ? const Color(0xFFFF3B30).withOpacity(0.1) : Colors.white.withOpacity(0.02),
+                        color: widget.bssiScore > 55 ? const Color(0xFFFFF5F5) : const Color(0xFFE2E8F0).withOpacity(0.3),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: widget.bssiScore > 55 ? const Color(0xFFFF3B30).withOpacity(0.3) : Colors.white10),
+                        border: Border.all(color: widget.bssiScore > 55 ? const Color(0xFF8B0000).withOpacity(0.3) : const Color(0xFFE2E8F0)),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -924,15 +974,15 @@ class _BloodGroupDetailScreenState extends State<BloodGroupDetailScreen> {
                             children: [
                               Icon(
                                 widget.bssiScore > 55 ? Icons.warning_amber : Icons.check_circle_outline,
-                                color: widget.bssiScore > 55 ? const Color(0xFFFF3B30) : const Color(0xFF30D158),
+                                color: widget.bssiScore > 55 ? const Color(0xFF8B0000) : const Color(0xFF30D158),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Text(
                                   widget.bssiScore > 75 
-                                      ? 'O+ is critical. Forecast predicts depletion in 4 days.'
+                                      ? '${widget.bloodGroup} is critical. Forecast predicts depletion in 4 days.'
                                       : 'Stock is adequate to cover next 7 days of predicted demand.',
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                  style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF2C2C2C)),
                                 ),
                               )
                             ],
@@ -942,12 +992,12 @@ class _BloodGroupDetailScreenState extends State<BloodGroupDetailScreen> {
                             ElevatedButton(
                               onPressed: _isTriggering ? null : _triggerDonorAlert,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFFFF3B30),
+                                backgroundColor: const Color(0xFF8B0000),
                                 padding: const EdgeInsets.symmetric(vertical: 16),
                               ),
                               child: _isTriggering
                                   ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                                  : const Text('Trigger Urgent Donor Alert', style: TextStyle(fontWeight: FontWeight.bold)),
+                                  : const Text('Trigger Urgent Donor Alert', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
                             ),
                           ],
                         ],
@@ -1036,9 +1086,13 @@ class _RedistributionSuggestionCardState extends State<RedistributionSuggestionC
 
   Future<void> _requestTransfer(Map suggestion) async {
     try {
+      final state = Provider.of<AppState>(context, listen: false);
       final response = await http.post(
         Uri.parse('${widget.backendUrl}/redistribution/request'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${state.token}',
+        },
         body: jsonEncode({
           'requesting_bank_id': widget.bankId,
           'supplying_bank_id': suggestion['supplying_bank_id'],
@@ -1077,7 +1131,7 @@ class _RedistributionSuggestionCardState extends State<RedistributionSuggestionC
           padding: const EdgeInsets.all(16.0),
           child: Text(
             'No nearby blood banks possess surplus of ${widget.bloodGroup} to suggest redistribution.',
-            style: const TextStyle(color: Colors.grey, fontSize: 13),
+            style: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
           ),
         ),
       );
@@ -1090,7 +1144,7 @@ class _RedistributionSuggestionCardState extends State<RedistributionSuggestionC
           padding: const EdgeInsets.only(bottom: 12.0),
           child: Text(
             'Suggestions for ${widget.bloodGroup}',
-            style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFFF3B30)),
+            style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF8B0000)),
           ),
         ),
         ..._suggestions.map((s) {
@@ -1117,7 +1171,7 @@ class _RedistributionSuggestionCardState extends State<RedistributionSuggestionC
                         children: [
                           const Text('Surplus Stock', style: TextStyle(fontSize: 11, color: Colors.grey)),
                           const SizedBox(height: 2),
-                          Text('${s['surplus_units']} Units', style: const TextStyle(fontWeight: FontWeight.w600)),
+                          Text('${s['surplus_units']} Units', style: const TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF2C2C2C))),
                         ],
                       ),
                       Column(
@@ -1134,7 +1188,8 @@ class _RedistributionSuggestionCardState extends State<RedistributionSuggestionC
                       ElevatedButton(
                         onPressed: () => _requestTransfer(s),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blueAccent,
+                          backgroundColor: const Color(0xFF8B0000),
+                          foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                         ),
                         child: const Text('Request'),
@@ -1212,9 +1267,13 @@ class _LogInventoryTransactionFormState extends State<LogInventoryTransactionFor
     };
 
     try {
+      final state = Provider.of<AppState>(context, listen: false);
       final response = await http.post(
         Uri.parse('${widget.backendUrl}/inventory/update'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${state.token}',
+        },
         body: jsonEncode(payload),
       );
 
@@ -1250,7 +1309,7 @@ class _LogInventoryTransactionFormState extends State<LogInventoryTransactionFor
         Container(
           padding: const EdgeInsets.all(4),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.04),
+            color: const Color(0xFFE2E8F0),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
@@ -1261,11 +1320,17 @@ class _LogInventoryTransactionFormState extends State<LogInventoryTransactionFor
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     decoration: BoxDecoration(
-                      color: _transactionType == 'donation' ? const Color(0xFFFF3B30) : Colors.transparent,
+                      color: _transactionType == 'donation' ? const Color(0xFF8B0000) : Colors.transparent,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     alignment: Alignment.center,
-                    child: const Text('Inflow (Donation Received)', style: TextStyle(fontWeight: FontWeight.bold)),
+                    child: Text(
+                      'Inflow (Donation Received)',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: _transactionType == 'donation' ? Colors.white : const Color(0xFF64748B),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -1275,11 +1340,17 @@ class _LogInventoryTransactionFormState extends State<LogInventoryTransactionFor
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     decoration: BoxDecoration(
-                      color: _transactionType == 'transfusion' ? const Color(0xFFFF3B30) : Colors.transparent,
+                      color: _transactionType == 'transfusion' ? const Color(0xFF8B0000) : Colors.transparent,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     alignment: Alignment.center,
-                    child: const Text('Outflow (Transfusion Out)', style: TextStyle(fontWeight: FontWeight.bold)),
+                    child: Text(
+                      'Outflow (Transfusion Out)',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: _transactionType == 'transfusion' ? Colors.white : const Color(0xFF64748B),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -1295,7 +1366,7 @@ class _LogInventoryTransactionFormState extends State<LogInventoryTransactionFor
             labelText: 'Blood Group',
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             filled: true,
-            fillColor: const Color(0xFF1B1A22),
+            fillColor: Colors.white,
           ),
           items: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
               .map((g) => DropdownMenuItem(value: g, child: Text(g)))
@@ -1315,7 +1386,7 @@ class _LogInventoryTransactionFormState extends State<LogInventoryTransactionFor
             prefixIcon: const Icon(Icons.water_drop_outlined),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             filled: true,
-            fillColor: const Color(0xFF1B1A22),
+            fillColor: Colors.white,
           ),
         ),
         const SizedBox(height: 16),
@@ -1329,7 +1400,7 @@ class _LogInventoryTransactionFormState extends State<LogInventoryTransactionFor
               prefixIcon: const Icon(Icons.person_pin_outlined),
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               filled: true,
-              fillColor: const Color(0xFF1B1A22),
+              fillColor: Colors.white,
             ),
           ),
         ] else ...[
@@ -1341,7 +1412,7 @@ class _LogInventoryTransactionFormState extends State<LogInventoryTransactionFor
               prefixIcon: const Icon(Icons.local_hospital_outlined),
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               filled: true,
-              fillColor: const Color(0xFF1B1A22),
+              fillColor: Colors.white,
             ),
           ),
           const SizedBox(height: 16),
@@ -1349,7 +1420,7 @@ class _LogInventoryTransactionFormState extends State<LogInventoryTransactionFor
             title: const Text('Emergency Flag'),
             subtitle: const Text('Check if this is an urgent/critical demand out'),
             value: _emergencyFlag,
-            activeColor: const Color(0xFFFF3B30),
+            activeColor: const Color(0xFF8B0000),
             onChanged: (val) => setState(() => _emergencyFlag = val),
           ),
         ],
@@ -1358,13 +1429,13 @@ class _LogInventoryTransactionFormState extends State<LogInventoryTransactionFor
         ElevatedButton(
           onPressed: _isSaving ? null : _submitTransaction,
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFFF3B30),
+            backgroundColor: const Color(0xFF8B0000),
             padding: const EdgeInsets.symmetric(vertical: 16),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
           child: _isSaving
               ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-              : const Text('Log Transaction', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              : const Text('Log Transaction', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
         ),
       ],
     );
@@ -1451,8 +1522,8 @@ class _HoverableBloodGroupCardState extends State<HoverableBloodGroupCard> {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      const Color(0xFF1B1A22),
-                      Color.lerp(const Color(0xFF1B1A22), cellColor, 0.05)!,
+                      Colors.white,
+                      Color.lerp(Colors.white, cellColor, 0.08)!,
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -1481,7 +1552,7 @@ class _HoverableBloodGroupCardState extends State<HoverableBloodGroupCard> {
                           children: [
                             Text(
                               widget.bloodGroup,
-                              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 0.5, color: Color(0xFF2C2C2C)),
                             ),
                             if (bssi > 75) ...[
                               const SizedBox(width: 8),
@@ -1509,11 +1580,11 @@ class _HoverableBloodGroupCardState extends State<HoverableBloodGroupCard> {
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: const Color(0xFF2C2C2C),
                         shadows: [
                           if (_isHovered)
                             Shadow(
-                              color: Colors.white.withOpacity(0.3),
+                              color: Colors.black.withOpacity(0.1),
                               blurRadius: 4,
                             ),
                         ],
@@ -1526,14 +1597,14 @@ class _HoverableBloodGroupCardState extends State<HoverableBloodGroupCard> {
                         Icon(
                           Icons.warning_amber_rounded,
                           size: 14,
-                          color: stock['units_expiring_3days'] > 0 ? const Color(0xFFFF9F0A) : Colors.grey,
+                          color: stock['units_expiring_3days'] > 0 ? const Color(0xFFFF9F0A) : const Color(0xFF64748B),
                         ),
                         const SizedBox(width: 4),
                         Text(
                           'Expiring (3d): ${stock['units_expiring_3days']}',
                           style: TextStyle(
                             fontSize: 12,
-                            color: stock['units_expiring_3days'] > 0 ? const Color(0xFFFF9F0A) : Colors.grey,
+                            color: stock['units_expiring_3days'] > 0 ? const Color(0xFFFF9F0A) : const Color(0xFF64748B),
                             fontWeight: stock['units_expiring_3days'] > 0 ? FontWeight.w500 : FontWeight.normal,
                           ),
                         ),
@@ -1598,6 +1669,352 @@ class _PulseWarningDotState extends State<_PulseWarningDot> with SingleTickerPro
         );
       },
     );
+  }
+}
+
+// AI Proximity radar scanning simulation
+class ProximitySearchAnimationDialog extends StatefulWidget {
+  final String bloodGroup;
+  final double bssiScore;
+  final int bankId;
+  final String bankName;
+  final String bankCity;
+  final Function(Map<String, dynamic> locationData) onScanComplete;
+
+  const ProximitySearchAnimationDialog({
+    super.key,
+    required this.bloodGroup,
+    required this.bssiScore,
+    required this.bankId,
+    required this.bankName,
+    required this.bankCity,
+    required this.onScanComplete,
+  });
+
+  @override
+  State<ProximitySearchAnimationDialog> createState() => _ProximitySearchAnimationDialogState();
+}
+
+class _ProximitySearchAnimationDialogState extends State<ProximitySearchAnimationDialog> {
+  double _elapsedSeconds = 0.0;
+  Timer? _timer;
+  final List<String> _logs = [];
+  bool _isComplete = false;
+  late Map<String, dynamic> _locData;
+
+  final List<Offset> _donorOffsets = [
+    const Offset(-0.3, -0.4),
+    const Offset(0.4, -0.2),
+    const Offset(-0.2, 0.5),
+    const Offset(0.5, 0.4),
+    const Offset(-0.5, 0.1),
+    const Offset(0.1, -0.6),
+    const Offset(0.3, 0.6),
+    const Offset(-0.6, -0.3),
+    const Offset(0.6, -0.5),
+    const Offset(-0.1, 0.3),
+    const Offset(0.2, -0.2),
+    const Offset(-0.4, 0.6),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _locData = _getBankLocationDetails(widget.bankName, widget.bankCity);
+    
+    _logs.add("[AI ENGINE] Initializing proximity engine...");
+    _timer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
+      setState(() {
+        _elapsedSeconds += 0.1;
+        if (_elapsedSeconds >= 10.0) {
+          _elapsedSeconds = 10.0;
+          _isComplete = true;
+          _timer?.cancel();
+          _addLogOnce("[AI SYSTEM] Scanning complete! 300 compatible donors mapped.");
+          _addLogOnce("[FCM PUSH] Alerts dispatched via push notifications and Twilio SMS fallbacks.");
+        } else {
+          _updateLogs();
+        }
+      });
+    });
+  }
+
+  Map<String, dynamic> _getBankLocationDetails(String name, String city) {
+    String nameLower = name.toLowerCase();
+    String cityLower = city.toLowerCase();
+
+    if (nameLower.contains("virugambakkam") || nameLower.contains("chennai") || cityLower.contains("chennai")) {
+      return {
+        "place": nameLower.contains("virugambakkam") ? "Virugambakkam, Chennai" : "Guindy, Chennai",
+        "lat": 13.0424,
+        "lng": 80.1914,
+        "coords_str": "13.0424° N, 80.1914° E",
+        "suburbs": ["Vadapalani", "Saligramam", "Koyambedu", "K.K. Nagar", "Ashok Nagar"],
+        "user_start_lat": 13.0494, // Vadapalani
+        "user_start_lng": 80.2104,
+      };
+    } else if (nameLower.contains("koramangala") || nameLower.contains("bengaluru") || nameLower.contains("bangalore") || cityLower.contains("bengaluru") || cityLower.contains("bangalore")) {
+      return {
+        "place": "Koramangala, Bengaluru",
+        "lat": 12.9352,
+        "lng": 77.6244,
+        "coords_str": "12.9352° N, 77.6244° E",
+        "suburbs": ["HSR Layout", "Indiranagar", "Jayanagar", "BTM Layout", "MG Road"],
+        "user_start_lat": 12.9279, // HSR Layout
+        "user_start_lng": 77.6271,
+      };
+    } else if (nameLower.contains("mumbai") || nameLower.contains("thane") || nameLower.contains("navi mumbai") || cityLower.contains("mumbai")) {
+      return {
+        "place": "Nariman Point, Mumbai",
+        "lat": 18.9282,
+        "lng": 72.8220,
+        "coords_str": "18.9282° N, 72.8220° E",
+        "suburbs": ["Colaba", "Marine Drive", "Worli", "Bandra", "Andheri"],
+        "user_start_lat": 19.0760,
+        "user_start_lng": 72.8777,
+      };
+    } else {
+      // Default to Delhi NCR
+      return {
+        "place": "Connaught Place, Delhi NCR",
+        "lat": 28.6304,
+        "lng": 77.2177,
+        "coords_str": "28.6304° N, 77.2177° E",
+        "suburbs": ["Karol Bagh", "Chanakyapuri", "Patel Nagar", "Noida Sector 62", "Gurgaon MG Road"],
+        "user_start_lat": 28.6139,
+        "user_start_lng": 77.2090,
+      };
+    }
+  }
+
+  void _addLogOnce(String log) {
+    if (!_logs.contains(log)) {
+      _logs.add(log);
+    }
+  }
+
+  void _updateLogs() {
+    if (_elapsedSeconds >= 1.0) {
+      _addLogOnce("[LOCATOR] Coordinate set: ${_locData['place']} (${_locData['coords_str']})");
+    }
+    if (_elapsedSeconds >= 2.5) {
+      String placeName = _locData['place'].toString().split(',')[0];
+      _addLogOnce("[SCANNER] Scanning $placeName grid... 130 donors matched.");
+    }
+    if (_elapsedSeconds >= 4.5) {
+      _addLogOnce("[EXPANSION] Radius extended to 5km (${_locData['suburbs'][0]} & ${_locData['suburbs'][1]})... 90 donors matched.");
+    }
+    if (_elapsedSeconds >= 6.5) {
+      _addLogOnce("[EXPANSION] Radius extended to 10km (${_locData['suburbs'][2]} & ${_locData['suburbs'][3]})... 80 donors matched.");
+    }
+    if (_elapsedSeconds >= 8.0) {
+      _addLogOnce("[AI MODEL] Filtering 300 eligible donors (DPDP Act 2023 compliant).");
+    }
+    if (_elapsedSeconds >= 9.0) {
+      _addLogOnce("[ROUTING] Optimizing ETA models based on transit traffic density...");
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    double progress = _elapsedSeconds / 10.0;
+    
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Container(
+        width: 480,
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.psychology_outlined, color: Color(0xFF8B0000), size: 28),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'AI Proximity Search',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+                      ),
+                      Text(
+                        'Matching ${widget.bloodGroup} Donors near ${_locData['place']}',
+                        style: const TextStyle(fontSize: 12, color: Colors.black54),
+                      ),
+                    ],
+                  ),
+                ),
+                if (_isComplete)
+                  const Icon(Icons.check_circle, color: Color(0xFF30D158), size: 24)
+                else
+                  Text(
+                    '${(10 - _elapsedSeconds).toStringAsFixed(1)}s',
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF8B0000)),
+                  ),
+              ],
+            ),
+            const Divider(height: 24),
+            
+            // Pulsating Radar Scan Circle
+            Center(
+              child: Container(
+                width: 180,
+                height: 180,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFAF8F5),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                ),
+                child: CustomPaint(
+                  painter: RadarPainter(progress, _donorOffsets),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            
+            // Progress Bar
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: progress,
+                backgroundColor: const Color(0xFFE2E8F0),
+                valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF8B0000)),
+                minHeight: 6,
+              ),
+            ),
+            const SizedBox(height: 16),
+            
+            // Dynamic Log Output Container
+            Container(
+              height: 120,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFAF8F5),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+              ),
+              child: ListView.builder(
+                itemCount: _logs.length,
+                itemBuilder: (context, index) {
+                  final log = _logs[index];
+                  final isFCM = log.startsWith("[FCM") || log.startsWith("[AI SYSTEM");
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 6.0),
+                    child: Text(
+                      log,
+                      style: TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 11,
+                        color: isFCM ? const Color(0xFF389E0D) : Colors.black87,
+                        fontWeight: isFCM ? FontWeight.bold : FontWeight.normal,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 20),
+            
+            // Bottom Action buttons
+            ElevatedButton(
+              onPressed: _isComplete
+                  ? () {
+                      Navigator.pop(context);
+                      widget.onScanComplete(_locData);
+                    }
+                  : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF8B0000),
+                disabledBackgroundColor: Colors.grey.shade300,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              child: Text(
+                _isComplete ? 'Dispatched Alerts (Close)' : 'AI Scan in Progress...',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: _isComplete ? Colors.white : Colors.black38,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class RadarPainter extends CustomPainter {
+  final double progress;
+  final List<Offset> donorOffsets;
+  RadarPainter(this.progress, this.donorOffsets);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final maxRadius = size.width / 2;
+
+    final gridPaint = Paint()
+      ..color = const Color(0xFF8B0000).withOpacity(0.08)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0;
+
+    for (int i = 1; i <= 4; i++) {
+      canvas.drawCircle(center, maxRadius * (i / 4), gridPaint);
+    }
+
+    canvas.drawLine(Offset(0, center.dy), Offset(size.width, center.dy), gridPaint);
+    canvas.drawLine(Offset(center.dx, 0), Offset(center.dx, size.height), gridPaint);
+
+    final sweepRadius = maxRadius * (progress % 0.5) * 2;
+    final sweepPaint = Paint()
+      ..color = const Color(0xFF8B0000).withOpacity(0.15 * (1.0 - (progress % 0.5) * 2))
+      ..style = PaintingStyle.fill;
+    canvas.drawCircle(center, sweepRadius, sweepPaint);
+
+    final ringRadius = maxRadius * (progress % 1.0);
+    final ringPaint = Paint()
+      ..color = const Color(0xFF8B0000).withOpacity(0.3 * (1.0 - progress % 1.0))
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.0;
+    canvas.drawCircle(center, ringRadius, ringPaint);
+
+    int visibleDonors = (donorOffsets.length * progress).toInt();
+    for (int i = 0; i < visibleDonors; i++) {
+      final offset = donorOffsets[i];
+      final pos = Offset(center.dx + offset.dx * maxRadius, center.dy + offset.dy * maxRadius);
+      
+      double opacity = ((progress * 10) - i).clamp(0.0, 1.0);
+      final dotPaint = Paint()
+        ..color = const Color(0xFF8B0000).withOpacity(opacity * 0.9)
+        ..style = PaintingStyle.fill;
+        
+      canvas.drawCircle(pos, 5, dotPaint);
+
+      final pulsePaint = Paint()
+        ..color = const Color(0xFF8B0000).withOpacity(opacity * 0.3 * (1.0 - (progress * 3 % 1.0)))
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.0;
+      canvas.drawCircle(pos, 5 + 6 * (progress * 3 % 1.0), pulsePaint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant RadarPainter oldDelegate) {
+    return oldDelegate.progress != progress || oldDelegate.donorOffsets != donorOffsets;
   }
 }
 

@@ -133,7 +133,7 @@ class _CoordinatorHeatmapScreenState extends State<CoordinatorHeatmapScreen> {
   void _showMarkerDetails(Map bank, Map<String, double> scores) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1B1A22),
+      backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (context) {
         return Padding(
@@ -144,15 +144,15 @@ class _CoordinatorHeatmapScreenState extends State<CoordinatorHeatmapScreen> {
             children: [
               Text(
                 bank['name'],
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF2C2C2C)),
               ),
               const SizedBox(height: 6),
               Text(
                 'Coordinates: ${bank['location_lat']}, ${bank['location_lng']}',
-                style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 11),
+                style: const TextStyle(color: Color(0xFF64748B), fontSize: 11),
               ),
               const SizedBox(height: 20),
-              const Text('Active BSSI Scores per Blood Group:', style: TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.bold)),
+              const Text('Active BSSI Scores per Blood Group:', style: TextStyle(color: Color(0xFF64748B), fontSize: 13, fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
               
               // 8 cells in popup
@@ -165,13 +165,13 @@ class _CoordinatorHeatmapScreenState extends State<CoordinatorHeatmapScreen> {
                     width: 70,
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.02),
+                      color: const Color(0xFFE2E8F0),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: color.withOpacity(0.3)),
                     ),
                     child: Column(
                       children: [
-                        Text(e.key, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                        Text(e.key, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF2C2C2C))),
                         const SizedBox(height: 4),
                         Text(
                           e.value.toStringAsFixed(0),
@@ -208,7 +208,7 @@ class _CoordinatorHeatmapScreenState extends State<CoordinatorHeatmapScreen> {
           // Region selector dropdown
           DropdownButton<int>(
             value: _selectedRegionId,
-            dropdownColor: const Color(0xFF1B1A22),
+            dropdownColor: const Color(0xFF8B0000),
             underline: Container(),
             style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             items: const [
@@ -244,7 +244,7 @@ class _CoordinatorHeatmapScreenState extends State<CoordinatorHeatmapScreen> {
           : tabs[_currentTab],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentTab,
-        selectedItemColor: const Color(0xFFFF3B30),
+        selectedItemColor: const Color(0xFF8B0000),
         unselectedItemColor: Colors.grey,
         onTap: (idx) => setState(() => _currentTab = idx),
         items: const [
@@ -263,10 +263,10 @@ class _CoordinatorHeatmapScreenState extends State<CoordinatorHeatmapScreen> {
         // Filter Bar (Select Blood Group)
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          color: const Color(0xFF1B1A22),
+          color: Colors.white,
           child: Row(
             children: [
-              const Text('Filter Group: ', style: TextStyle(color: Colors.grey, fontSize: 13)),
+              const Text('Filter Group: ', style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
               const SizedBox(width: 8),
               Expanded(
                 child: SizedBox(
@@ -280,9 +280,9 @@ class _CoordinatorHeatmapScreenState extends State<CoordinatorHeatmapScreen> {
                         child: ChoiceChip(
                           label: Text(g, style: const TextStyle(fontSize: 12)),
                           selected: isSel,
-                          selectedColor: const Color(0xFFFF3B30),
-                          labelStyle: TextStyle(color: isSel ? Colors.white : Colors.grey),
-                          backgroundColor: Colors.white.withOpacity(0.04),
+                          selectedColor: const Color(0xFF8B0000),
+                          labelStyle: TextStyle(color: isSel ? Colors.white : const Color(0xFF64748B)),
+                          backgroundColor: const Color(0xFFE2E8F0),
                           onSelected: (val) {
                             if (val) setState(() => _selectedBloodGroup = g);
                           },
@@ -341,17 +341,25 @@ class _CoordinatorHeatmapScreenState extends State<CoordinatorHeatmapScreen> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.85),
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      )
+                    ]
                   ),
                   child: const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.touch_app, color: Colors.grey, size: 16),
+                      Icon(Icons.touch_app, color: Color(0xFF64748B), size: 16),
                       SizedBox(width: 8),
                       Text(
                         'Tap any colored bank locator point to audit detailed BSSI indices.',
-                        style: TextStyle(fontSize: 11, color: Colors.grey),
+                        style: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
                       ),
                     ],
                   ),
@@ -374,11 +382,11 @@ class _CoordinatorHeatmapScreenState extends State<CoordinatorHeatmapScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('Active Shortages & Escalations Feed', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const Text('Active Shortages & Escalations Feed', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF2C2C2C))),
           const SizedBox(height: 4),
           Text(
             'Displays all centers with BSSI > 75. Actions send SMS alerts to regional health officers.',
-            style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.4)),
+            style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
           ),
           const SizedBox(height: 16),
           
@@ -392,7 +400,7 @@ class _CoordinatorHeatmapScreenState extends State<CoordinatorHeatmapScreen> {
                         const SizedBox(height: 16),
                         Text(
                           'No critical shortages reported in $_selectedRegionName.',
-                          style: TextStyle(color: Colors.white.withOpacity(0.5)),
+                          style: const TextStyle(color: Color(0xFF64748B)),
                         ),
                       ],
                     ),
@@ -424,7 +432,7 @@ class _CoordinatorHeatmapScreenState extends State<CoordinatorHeatmapScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Analytics Report', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const Text('Analytics Report', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF2C2C2C))),
                 ElevatedButton.icon(
                   onPressed: () {
                     // Simulate Export as PDF
@@ -437,7 +445,7 @@ class _CoordinatorHeatmapScreenState extends State<CoordinatorHeatmapScreen> {
                   },
                   icon: const Icon(Icons.picture_as_pdf, size: 18),
                   label: const Text('Export PDF'),
-                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF3B30)),
+                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF8B0000), foregroundColor: Colors.white),
                 ),
               ],
             ),
@@ -450,12 +458,12 @@ class _CoordinatorHeatmapScreenState extends State<CoordinatorHeatmapScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Daily Donations Trend (Last 30 Days)', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                    const Text('Daily Donations Trend (Last 30 Days)', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF2C2C2C))),
                     const SizedBox(height: 24),
                     SizedBox(
                       height: 140,
                       child: _donationTrend.isEmpty
-                          ? const Center(child: Text('No historical trends available.'))
+                          ? const Center(child: Text('No historical trends available.', style: TextStyle(color: Color(0xFF64748B))))
                           : BarChart(
                               BarChartData(
                                 borderData: FlBorderData(show: false),
@@ -472,7 +480,7 @@ class _CoordinatorHeatmapScreenState extends State<CoordinatorHeatmapScreen> {
                                     barRods: [
                                       BarChartRodData(
                                         toY: (_donationTrend[idx]['units'] as num).toDouble(),
-                                        color: const Color(0xFFFF3B30),
+                                        color: const Color(0xFF8B0000),
                                         width: 8,
                                         borderRadius: BorderRadius.circular(4),
                                       )
@@ -495,27 +503,27 @@ class _CoordinatorHeatmapScreenState extends State<CoordinatorHeatmapScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Critical Shortage Incidents by Blood Group', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                    const Text('Critical Shortage Incidents by Blood Group', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF2C2C2C))),
                     const SizedBox(height: 12),
                     ..._shortageFreq.entries.map((e) {
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 8.0),
                         child: Row(
                           children: [
-                            SizedBox(width: 36, child: Text(e.key, style: const TextStyle(fontWeight: FontWeight.bold))),
+                            SizedBox(width: 36, child: Text(e.key, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF2C2C2C)))),
                             Expanded(
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(4),
                                 child: LinearProgressIndicator(
                                   value: e.value > 0 ? (e.value / 15.0) : 0.0,
                                   minHeight: 8,
-                                  backgroundColor: Colors.white12,
-                                  valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFFF3B30)),
+                                  backgroundColor: const Color(0xFFE2E8F0),
+                                  valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF8B0000)),
                                 ),
                               ),
                             ),
                             const SizedBox(width: 12),
-                            Text('${e.value}', style: const TextStyle(color: Colors.grey)),
+                            Text('${e.value}', style: const TextStyle(color: Color(0xFF64748B))),
                           ],
                         ),
                       );
@@ -554,9 +562,13 @@ class _CriticalAlertFeedCardState extends State<CriticalAlertFeedCard> {
     final bssi = widget.alertData['bssi'];
     
     try {
+      final state = Provider.of<AppState>(context, listen: false);
       final response = await http.post(
         Uri.parse('${widget.backendUrl}/emergency/escalate/$bId'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${state.token}',
+        },
         body: jsonEncode({
           'message': 'CRITICAL ALERT: Blood Bank \"${widget.alertData['bank_name']}\" reports BSSI score of $bssi for $bg group. Depot depletion imminent. Immediate regional mobilize required.'
         }),
@@ -603,12 +615,12 @@ class _CriticalAlertFeedCardState extends State<CriticalAlertFeedCard> {
                     children: [
                       Text(
                         data['bank_name'] ?? 'Blood Bank',
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF2C2C2C)),
                       ),
                       const SizedBox(height: 4),
-                      Text(
+                      const Text(
                         'Depletion expected soon',
-                        style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 12),
+                        style: TextStyle(color: Color(0xFF64748B), fontSize: 12),
                       ),
                     ],
                   ),
@@ -616,12 +628,12 @@ class _CriticalAlertFeedCardState extends State<CriticalAlertFeedCard> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFF3B30).withOpacity(0.1),
+                    color: const Color(0xFF8B0000).withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Text(
                     data['blood_group'] ?? 'O+',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFFFF3B30)),
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF8B0000)),
                   ),
                 ),
               ],
@@ -634,22 +646,22 @@ class _CriticalAlertFeedCardState extends State<CriticalAlertFeedCard> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('BSSI Score', style: TextStyle(color: Colors.grey, fontSize: 11)),
+                    const Text('BSSI Score', style: TextStyle(color: Color(0xFF64748B), fontSize: 11)),
                     const SizedBox(height: 2),
                     Text(
                       '$bssi / 100',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFFFF3B30)),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF8B0000)),
                     ),
                   ],
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Donors Responded', style: TextStyle(color: Colors.grey, fontSize: 11)),
+                    const Text('Donors Responded', style: TextStyle(color: Color(0xFF64748B), fontSize: 11)),
                     const SizedBox(height: 2),
                     Text(
                       '${data['donor_response_count'] ?? 0} Responses',
-                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Color(0xFF2C2C2C)),
                     ),
                   ],
                 ),
@@ -706,11 +718,11 @@ class RegionalHeatmapPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     // Draw stylized dark background contour grid
     final outlinePaint = Paint()
-      ..color = Colors.white.withOpacity(0.015)
+      ..color = Colors.black.withOpacity(0.025)
       ..style = PaintingStyle.fill;
       
     final borderPaint = Paint()
-      ..color = Colors.white.withOpacity(0.05)
+      ..color = Colors.black.withOpacity(0.08)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
 
@@ -727,7 +739,7 @@ class RegionalHeatmapPainter extends CustomPainter {
 
     // Draw stylized map streets
     final roadPaint = Paint()
-      ..color = Colors.white.withOpacity(0.02)
+      ..color = Colors.black.withOpacity(0.04)
       ..strokeWidth = 2.0;
     canvas.drawLine(Offset(size.width * 0.1, size.height * 0.5), Offset(size.width * 0.9, size.height * 0.5), roadPaint);
     canvas.drawLine(Offset(size.width * 0.5, size.height * 0.1), Offset(size.width * 0.5, size.height * 0.9), roadPaint);
@@ -766,7 +778,7 @@ class RegionalHeatmapPainter extends CustomPainter {
       // Draw label
       final textSpan = TextSpan(
         text: '${bank['name'].toString().replaceAll(" Memorial", "").replaceAll(" Emergency", "")}\nWorst BSSI: ${scoreValue.toStringAsFixed(0)}',
-        style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 10, fontWeight: FontWeight.bold),
+        style: const TextStyle(color: Color(0xFF2C2C2C), fontSize: 10, fontWeight: FontWeight.bold),
       );
       final textPainter = TextPainter(text: textSpan, textDirection: ui.TextDirection.ltr);
       textPainter.layout();

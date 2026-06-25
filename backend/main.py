@@ -540,6 +540,25 @@ def post_login(request: Request, req: LoginRequest, db: Session = Depends(get_db
             }
         }
 
+    elif req.role == "coordinator":
+        demo_coordinators = {"coordinator", "+919999999999", "coord"}
+        if req.phone.lower().strip() in demo_coordinators and req.password == "admin123":
+            token = create_jwt_token(999, "coordinator")
+            refresh_token = create_refresh_token(db, None)
+            return {
+                "status": "success",
+                "token": token,
+                "refresh_token": refresh_token,
+                "role": "coordinator",
+                "profile": {
+                    "firebase_uid": "mock_uid_coordinator",
+                    "name": "Regional Health Coordinator",
+                    "phone": req.phone
+                }
+            }
+        else:
+            raise HTTPException(status_code=400, detail="Invalid credentials. Use 'coordinator' and 'admin123'.")
+
     else:
         raise HTTPException(status_code=400, detail="Invalid role.")
 
@@ -572,7 +591,8 @@ def post_auth_logout(req: LogoutRequest, db: Session = Depends(get_db)):
     return {"status": "success", "message": "Logged out successfully."}
 
 @app.post("/auth/forgot-password")
-def post_forgot_password(req: ForgotPasswordRequest, db: Session = Depends(get_db)):
+@limiter.limit("10/minute")
+def post_forgot_password(request: Request, req: ForgotPasswordRequest, db: Session = Depends(get_db)):
     """Generate a time-limited OTP and simulate Twilio SMS dispatch."""
     donor = db.query(Donor).filter(Donor.phone == req.phone).first()
     if not donor:
@@ -585,7 +605,8 @@ def post_forgot_password(req: ForgotPasswordRequest, db: Session = Depends(get_d
     return {"status": "success", "message": "OTP sent to registered phone number."}
 
 @app.post("/auth/reset-password")
-def post_reset_password(req: ResetPasswordRequest, db: Session = Depends(get_db)):
+@limiter.limit("10/minute")
+def post_reset_password(request: Request, req: ResetPasswordRequest, db: Session = Depends(get_db)):
     """Verify OTP and update donor password hash."""
     entry = OTP_STORE.get(req.phone)
     if not entry:
@@ -644,7 +665,13 @@ def get_data_provenance(db: Session = Depends(get_db)):
 # 2. Inventory Router
 
 @app.get("/inventory/{bank_id}")
-def get_inventory(bank_id: int, db: Session = Depends(get_db)):
+def get_inventory(
+    bank_id: int, 
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    if current_user.get("role") != "bank_admin":
+        raise HTTPException(status_code=403, detail="Access denied. Only bank administrators can access inventory.")
     inventory = db.query(BloodInventory).filter(BloodInventory.bank_id == bank_id).all()
     if not inventory:
         # Seed default inventory rows if missing
@@ -664,7 +691,14 @@ def get_inventory(bank_id: int, db: Session = Depends(get_db)):
     }
 
 @app.post("/inventory/update")
-def post_inventory_update(req: InventoryUpdateRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+def post_inventory_update(
+    req: InventoryUpdateRequest, 
+    background_tasks: BackgroundTasks, 
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    if current_user.get("role") != "bank_admin":
+        raise HTTPException(status_code=403, detail="Access denied. Only bank administrators can update inventory.")
     # Find inventory item
     inv = db.query(BloodInventory).filter(
         BloodInventory.bank_id == req.bank_id,
@@ -725,7 +759,13 @@ def post_inventory_update(req: InventoryUpdateRequest, background_tasks: Backgro
     return {"status": "success", "units_available": inv.units_available}
 
 @app.get("/inventory/expiring/{bank_id}")
-def get_inventory_expiring(bank_id: int, db: Session = Depends(get_db)):
+def get_inventory_expiring(
+    bank_id: int, 
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    if current_user.get("role") != "bank_admin":
+        raise HTTPException(status_code=403, detail="Access denied. Only bank administrators can view expiring inventory.")
     inventory = db.query(BloodInventory).filter(BloodInventory.bank_id == bank_id).all()
     return {
         item.blood_group: item.units_expiring_3days for item in inventory
@@ -750,7 +790,13 @@ def get_forecast(bank_id: int, blood_group: str, db: Session = Depends(get_db)):
     ]
 
 @app.post("/forecast/retrain")
-def post_forecast_retrain(background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+def post_forecast_retrain(
+    background_tasks: BackgroundTasks, 
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    if current_user.get("role") != "coordinator":
+        raise HTTPException(status_code=403, detail="Access denied. Only coordinators can retrain forecasting models.")
     # Run Prophet training in background
     background_tasks.add_task(train_and_cache_forecasts, db, force_retrain=True)
     return {"status": "training_scheduled", "message": "Prophet models training has started in background."}
@@ -823,7 +869,13 @@ def get_bssi_detail(bank_id: int, blood_group: str, db: Session = Depends(get_db
     }
 
 @app.post("/bssi/recompute/{bank_id}")
-def post_bssi_recompute(bank_id: int, db: Session = Depends(get_db)):
+def post_bssi_recompute(
+    bank_id: int, 
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    if current_user.get("role") != "bank_admin":
+        raise HTTPException(status_code=403, detail="Access denied. Only bank administrators can recompute BSSI.")
     blood_groups = ["O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"]
     results = {}
     for bg in blood_groups:
@@ -1136,7 +1188,14 @@ def delete_donor_account(
     return {"status": "success", "message": "Account permanently deleted per DPDP Act 2023."}
 
 @app.get("/donors/eligible/{blood_group}/{bank_id}")
-def get_eligible_donors(blood_group: str, bank_id: int, db: Session = Depends(get_db)):
+def get_eligible_donors(
+    blood_group: str,
+    bank_id: int,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    if current_user.get("role") not in ("bank_admin", "coordinator"):
+        raise HTTPException(status_code=403, detail="Access denied. Only bank administrators or coordinators can access eligible donor listings.")
     ranked = rank_eligible_donors(db, bank_id, blood_group)
     return [
         {
@@ -1382,7 +1441,14 @@ def get_nearest_shortage_alert(
 # 6. Alerts Router
 
 @app.post("/alerts/trigger/{bank_id}/{blood_group}")
-def post_trigger_alert(bank_id: int, blood_group: str, db: Session = Depends(get_db)):
+def post_trigger_alert(
+    bank_id: int, 
+    blood_group: str, 
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    if current_user.get("role") != "bank_admin":
+        raise HTTPException(status_code=403, detail="Access denied. Only bank administrators can trigger shortage alerts.")
     bank = db.query(BloodBank).filter(BloodBank.bank_id == bank_id).first()
     if not bank:
         raise HTTPException(status_code=404, detail="Blood bank not found.")
@@ -1559,8 +1625,8 @@ def get_redistribution_suggestions(bank_id: int, blood_group: str, db: Session =
         
         available = inventory.units_available if inventory else 0.0
         
-        # Surplus conditions: BSSI < 40 and stock > 25 units
-        if score_val < 40.0 and available > 25.0:
+        # Surplus conditions: BSSI < 30 (Safe) and stock > 40 units
+        if score_val < 30.0 and available > 40.0:
             # Distance approximation
             d_lat = np.radians(supplying_bank.location_lat - requesting_bank.location_lat)
             d_lng = np.radians(supplying_bank.location_lng - requesting_bank.location_lng)
@@ -1588,7 +1654,13 @@ def get_redistribution_suggestions(bank_id: int, blood_group: str, db: Session =
     return suggestions
 
 @app.post("/redistribution/request")
-def post_redistribution_request(req: RedistributionRequest, db: Session = Depends(get_db)):
+def post_redistribution_request(
+    req: RedistributionRequest, 
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    if current_user.get("role") not in ("bank_admin", "coordinator"):
+        raise HTTPException(status_code=403, detail="Access denied. Only bank administrators or coordinators can request redistribution.")
     redist = Redistribution(
         requesting_bank_id=req.requesting_bank_id,
         supplying_bank_id=req.supplying_bank_id,
@@ -1614,7 +1686,14 @@ def post_redistribution_request(req: RedistributionRequest, db: Session = Depend
     return {"status": "success", "suggestion_id": redist.suggestion_id}
 
 @app.put("/redistribution/status/{suggestion_id}")
-def put_redistribution_status(suggestion_id: int, req: RedistributionStatusUpdate, db: Session = Depends(get_db)):
+def put_redistribution_status(
+    suggestion_id: int, 
+    req: RedistributionStatusUpdate, 
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    if current_user.get("role") != "bank_admin":
+        raise HTTPException(status_code=403, detail="Access denied. Only bank administrators can update redistribution status.")
     redist = db.query(Redistribution).filter(Redistribution.suggestion_id == suggestion_id).first()
     if not redist:
         raise HTTPException(status_code=404, detail="Redistribution record not found.")
@@ -1663,7 +1742,14 @@ def get_emergency_events(region_id: int, db: Session = Depends(get_db)):
     ]
 
 @app.post("/emergency/escalate/{bank_id}")
-def post_emergency_escalate(bank_id: int, req: EscalateRequest = Body(...), db: Session = Depends(get_db)):
+def post_emergency_escalate(
+    bank_id: int, 
+    req: EscalateRequest = Body(...), 
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    if current_user.get("role") != "coordinator":
+        raise HTTPException(status_code=403, detail="Access denied. Only coordinators can escalate emergencies.")
     bank = db.query(BloodBank).filter(BloodBank.bank_id == bank_id).first()
     if not bank:
         raise HTTPException(status_code=404, detail="Blood bank not found.")

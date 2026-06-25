@@ -24,35 +24,60 @@ class BloodSenseApp extends StatelessWidget {
     return MaterialApp(
       title: 'BloodSense',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color(0xFF0F0E13),
-        colorScheme: const ColorScheme.dark(
-          primary: Color(0xFFFF3B30), // Crimson Red
-          secondary: Color(0xFF1C1B24),
-          surface: Color(0xFF1B1A22),
-          background: Color(0xFF0F0E13),
-          error: Color(0xFFFF3B30),
+      theme: ThemeData.light().copyWith(
+        scaffoldBackgroundColor: const Color(0xFFF4F6F8),
+        colorScheme: const ColorScheme.light(
+          primary: Color(0xFF8B0000), // Deep Crimson Red
+          secondary: Color(0xFFFAF8F5), // Cream
+          surface: Colors.white,
+          background: Color(0xFFF4F6F8),
+          error: Color(0xFFD32F2F),
           onPrimary: Colors.white,
+          onSurface: Color(0xFF2C2C2C),
         ),
         cardTheme: CardThemeData(
-          color: const Color(0xFF1B1A22),
-          elevation: 4,
+          color: Colors.white,
+          elevation: 2,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: BorderSide(color: Colors.white.withOpacity(0.06), width: 1),
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(color: const Color(0xFFE2E8F0), width: 1),
           ),
         ),
         appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF0F0E13),
-          elevation: 0,
+          backgroundColor: Color(0xFF8B0000), // Crimson Header
+          elevation: 1,
           centerTitle: true,
+          iconTheme: IconThemeData(color: Colors.white),
           titleTextStyle: TextStyle(
+            color: Colors.white,
             fontSize: 20,
             fontWeight: FontWeight.bold,
             letterSpacing: 0.5,
           ),
         ),
       ),
+      builder: (context, child) {
+        return Container(
+          color: const Color(0xFF0F0E13), // Deep dark/neutral background for the outer area
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 430),
+              child: Container(
+                decoration: const BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black54,
+                      blurRadius: 20,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: child ?? const SizedBox(),
+              ),
+            ),
+          ),
+        );
+      },
       home: const MainRouter(),
     );
   }

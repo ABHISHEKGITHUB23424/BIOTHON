@@ -287,7 +287,7 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Donor Dashboard'),
-        leading: const Icon(Icons.favorite, color: Color(0xFFFF3B30)),
+        leading: const Icon(Icons.favorite, color: Colors.white),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -301,14 +301,14 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
           await _fetchDonorData();
           await _fetchDashboardData();
         },
-        color: const Color(0xFFFF3B30),
+        color: const Color(0xFF8B0000),
         child: _isLoading 
-            ? const Center(child: CircularProgressIndicator(color: Color(0xFFFF3B30)))
+            ? const Center(child: CircularProgressIndicator(color: Color(0xFF8B0000)))
             : tabs[_currentTab],
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentTab,
-        selectedItemColor: const Color(0xFFFF3B30),
+        selectedItemColor: const Color(0xFF8B0000),
         unselectedItemColor: Colors.grey,
         onTap: (idx) => setState(() => _currentTab = idx),
         items: const [
@@ -346,8 +346,8 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: isEligible 
-                      ? [const Color(0xFF30D158).withOpacity(0.12), const Color(0xFF1B1A22)]
-                      : [const Color(0xFFFF9F0A).withOpacity(0.12), const Color(0xFF1B1A22)],
+                      ? [const Color(0xFF30D158).withOpacity(0.12), Colors.white]
+                      : [const Color(0xFFFF9F0A).withOpacity(0.12), Colors.white],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -356,6 +356,13 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
                   color: isEligible ? const Color(0xFF30D158).withOpacity(0.25) : const Color(0xFFFF9F0A).withOpacity(0.25),
                   width: 1,
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  )
+                ],
               ),
               child: Column(
                 children: [
@@ -374,7 +381,7 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
                   const SizedBox(height: 16),
                   Text(
                     isEligible ? 'You are eligible to donate!' : 'You are currently resting',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF2C2C2C)),
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -382,7 +389,7 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
                         ? 'Your blood group ${state.bloodGroup} is in demand. Ready to save a life?' 
                         : 'Eligible in ${_donorStats['eligible_in_days']} days (90 days interval required).',
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 13),
+                    style: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
                   ),
                 ],
               ),
@@ -453,20 +460,20 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Donor Profile', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey)),
+                        const Text('Donor Profile', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF64748B))),
                         const SizedBox(height: 16),
                         _buildProfileRow(Icons.person_outline, 'Name', state.name),
-                        const Divider(height: 24, color: Colors.white12),
+                        const Divider(height: 24, color: Color(0xFFE2E8F0)),
                         _buildProfileRow(Icons.bloodtype_outlined, 'Blood Group', state.bloodGroup),
-                        const Divider(height: 24, color: Colors.white12),
+                        const Divider(height: 24, color: Color(0xFFE2E8F0)),
                         _buildProfileRow(Icons.location_city_outlined, 'Registered Region', state.city),
-                        const Divider(height: 24, color: Colors.white12),
+                        const Divider(height: 24, color: Color(0xFFE2E8F0)),
                         _buildProfileRow(Icons.phone_iphone, 'Phone', state.phone),
-                        const Divider(height: 24, color: Colors.white12),
+                        const Divider(height: 24, color: Color(0xFFE2E8F0)),
                         _buildProfileRow(Icons.calendar_month_outlined, 'Date of Birth', dobDisplay),
-                        const Divider(height: 24, color: Colors.white12),
+                        const Divider(height: 24, color: Color(0xFFE2E8F0)),
                         _buildProfileRow(Icons.cake_outlined, 'Calculated Age', ageDisplay),
-                        const Divider(height: 24, color: Colors.white12),
+                        const Divider(height: 24, color: Color(0xFFE2E8F0)),
                         _buildProfileRow(
                           Icons.verified_user_outlined, 
                           'Verification Document', 
@@ -486,7 +493,7 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.02),
+                color: const Color(0xFFE2E8F0).withOpacity(0.4),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Row(
@@ -496,7 +503,7 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
                   Expanded(
                     child: Text(
                       'Keep push notifications active! Critical BSSI shortage alerts rely on proximity matching to contact you.',
-                      style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.55), height: 1.45),
+                      style: TextStyle(fontSize: 12, color: const Color(0xFF64748B), height: 1.45),
                     ),
                   ),
                 ],
@@ -512,7 +519,7 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
     Color cardColor = const Color(0xFF30D158);
     IconData icon = Icons.check_circle_outline;
     if (level == 'CRITICAL') {
-      cardColor = const Color(0xFFFF3B30);
+      cardColor = const Color(0xFF8B0000);
       icon = Icons.warning_amber_rounded;
     } else if (level == 'WARNING') {
       cardColor = const Color(0xFFFF9F0A);
@@ -555,9 +562,9 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
                 const SizedBox(height: 6),
                 Text(
                   message,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 13,
-                    color: Colors.white.withOpacity(0.85),
+                    color: Color(0xFF2C2C2C),
                     height: 1.4,
                   ),
                 ),
@@ -625,21 +632,21 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
                             children: [
                               Text(
                                 bank['bank_name'] ?? 'Blood Bank',
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF2C2C2C)),
                               ),
                               const SizedBox(height: 4),
                               Text(
                                 bank['address'] ?? 'No address available',
-                                style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.6)),
+                                style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
                               ),
                               const SizedBox(height: 6),
                               Row(
                                 children: [
-                                  Icon(Icons.location_on, size: 12, color: Colors.white.withOpacity(0.4)),
+                                  const Icon(Icons.location_on, size: 12, color: Color(0xFF64748B)),
                                   const SizedBox(width: 4),
                                   Text(
                                     '${dist.toStringAsFixed(1)} km away (${bank['eta_minutes']} mins)',
-                                    style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.4)),
+                                    style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
                                   ),
                                 ],
                               ),
@@ -660,7 +667,7 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
                         ),
                       ],
                     ),
-                    const Divider(height: 24, color: Colors.white10),
+                    const Divider(height: 24, color: Color(0xFFE2E8F0)),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -672,19 +679,19 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
-                                color: units < 15.0 ? const Color(0xFFFF3B30) : Colors.white,
+                                color: units < 15.0 ? const Color(0xFF8B0000) : const Color(0xFF2C2C2C),
                               ),
                             ),
                             const SizedBox(width: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.04),
+                                color: const Color(0xFFE2E8F0),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
                                 donorBloodGroup,
-                                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white60),
+                                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF64748B)),
                               ),
                             ),
                           ],
@@ -694,7 +701,7 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
                           icon: const Icon(Icons.emergency_share, size: 14),
                           label: const Text('Rush to Donate', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: statusColor,
+                            backgroundColor: statusColor == const Color(0xFFFF3B30) ? const Color(0xFF8B0000) : statusColor,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -713,10 +720,10 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
 
   Widget _buildSimulatorCard(AppState state) {
     return Card(
-      color: const Color(0xFF16151E),
+      color: const Color(0xFFFFF5F5),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: const Color(0xFFFF3B30).withOpacity(0.25), width: 1),
+        side: BorderSide(color: const Color(0xFF8B0000).withOpacity(0.25), width: 1),
       ),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -724,15 +731,15 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              children: [
-                const Icon(Icons.construction, color: Color(0xFFFF3B30), size: 18),
-                const SizedBox(width: 8),
-                const Text(
+              children: const [
+                Icon(Icons.construction, color: Color(0xFF8B0000), size: 18),
+                SizedBox(width: 8),
+                Text(
                   'MOBILIZATION SIMULATOR',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFFFF3B30),
+                    color: Color(0xFF8B0000),
                     letterSpacing: 1.0,
                   ),
                 ),
@@ -741,16 +748,15 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
             const SizedBox(height: 8),
             Text(
               'Simulate receiving a mock regional push notification alert for a shortage of your blood group (${state.bloodGroup}) in ${state.city}.',
-              style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.5), height: 1.4),
+              style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), height: 1.4),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => _simulateMockPushNotification(state),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFF3B30).withOpacity(0.15),
-                foregroundColor: const Color(0xFFFF3B30),
-                elevation: 0,
-                side: const BorderSide(color: Color(0xFFFF3B30), width: 1),
+                backgroundColor: const Color(0xFF8B0000),
+                foregroundColor: Colors.white,
+                elevation: 1,
                 padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
@@ -785,14 +791,14 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(title, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                Text(title, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
                 Icon(icon, color: iconColor, size: 20),
               ],
             ),
             const SizedBox(height: 16),
-            Text(value, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            Text(value, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF2C2C2C))),
             const SizedBox(height: 4),
-            Text(subtitle, style: TextStyle(fontSize: 11, color: Colors.white.withOpacity(0.3))),
+            Text(subtitle, style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
           ],
         ),
       ),
@@ -802,14 +808,14 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
   Widget _buildProfileRow(IconData icon, String label, String value) {
     return Row(
       children: [
-        Icon(icon, color: const Color(0xFFFF3B30), size: 20),
+        Icon(icon, color: const Color(0xFF8B0000), size: 20),
         const SizedBox(width: 16),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label, style: const TextStyle(fontSize: 11, color: Colors.grey)),
+            Text(label, style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
             const SizedBox(height: 2),
-            Text(value, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+            Text(value, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF2C2C2C))),
           ],
         )
       ],
@@ -827,7 +833,7 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Badges Grid
-          const Text('Your Badges & Achievements', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey)),
+          const Text('Your Badges & Achievements', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF64748B))),
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -856,19 +862,19 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
             ],
           ),
           const SizedBox(height: 24),
-          const Divider(color: Colors.white10),
+          const Divider(color: Color(0xFFE2E8F0)),
           const SizedBox(height: 12),
           
           // History Title
-          const Text('Donation Records Log', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey)),
+          const Text('Donation Records Log', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF64748B))),
           const SizedBox(height: 12),
           
           Expanded(
             child: history.isEmpty
-                ? Center(
+                ? const Center(
                     child: Text(
                       'No donation records logged yet.',
-                      style: TextStyle(color: Colors.white.withOpacity(0.3)),
+                      style: TextStyle(color: Color(0xFF64748B)),
                     ),
                   )
                 : ListView.builder(
@@ -882,25 +888,25 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
                           leading: Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFFF3B30).withOpacity(0.1),
+                              color: const Color(0xFF8B0000).withOpacity(0.1),
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(Icons.water_drop, color: Color(0xFFFF3B30)),
+                            child: const Icon(Icons.water_drop, color: Color(0xFF8B0000)),
                           ),
-                          title: Text(item['bank_name'] ?? 'Blood Bank'),
-                          subtitle: Text(DateFormat('dd MMMM yyyy').format(date)),
+                          title: Text(item['bank_name'] ?? 'Blood Bank', style: const TextStyle(color: Color(0xFF2C2C2C), fontWeight: FontWeight.bold)),
+                          subtitle: Text(DateFormat('dd MMMM yyyy').format(date), style: const TextStyle(color: Color(0xFF64748B))),
                           trailing: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
                                 '${item['units']} Unit',
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF2C2C2C)),
                               ),
                               const SizedBox(height: 2),
                               Text(
                                 item['blood_group'] ?? '',
-                                style: const TextStyle(color: Colors.grey, fontSize: 12),
+                                style: const TextStyle(color: Color(0xFF64748B), fontSize: 12),
                               ),
                             ],
                           ),
@@ -926,16 +932,16 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: unlocked ? color.withOpacity(0.15) : Colors.white.withOpacity(0.02),
+            color: unlocked ? color.withOpacity(0.15) : const Color(0xFFE2E8F0).withOpacity(0.4),
             shape: BoxShape.circle,
             border: Border.all(
-              color: unlocked ? color : Colors.white10,
+              color: unlocked ? color : const Color(0xFFE2E8F0),
               width: 1.5,
             ),
           ),
           child: Icon(
             icon,
-            color: unlocked ? color : Colors.grey.withOpacity(0.3),
+            color: unlocked ? color : Colors.grey.withOpacity(0.5),
             size: 32,
           ),
         ),
@@ -945,7 +951,7 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 13,
-            color: unlocked ? Colors.white : Colors.white.withOpacity(0.3),
+            color: unlocked ? const Color(0xFF2C2C2C) : const Color(0xFF64748B),
           ),
         ),
         const SizedBox(height: 2),
@@ -953,7 +959,7 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
           description,
           style: TextStyle(
             fontSize: 10,
-            color: unlocked ? Colors.grey : Colors.white.withOpacity(0.15),
+            color: unlocked ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
           ),
         ),
       ],
@@ -983,6 +989,13 @@ class _AlertReceivedScreenState extends State<AlertReceivedScreen> {
   }
 
   Future<void> _loadUserLocation() async {
+    if (widget.notificationData['log_id'] == 999) {
+      setState(() {
+        _userLat = 13.0494; // Vadapalani, Chennai
+        _userLng = 80.2104;
+      });
+      return;
+    }
     final coords = await GeolocationHelper.getCurrentLocation();
     if (coords != null) {
       setState(() {
@@ -1052,8 +1065,7 @@ class _AlertReceivedScreenState extends State<AlertReceivedScreen> {
     
     // Choose urgency color
     Color urgencyColor = const Color(0xFFFF9F0A); // warning
-    if (bssi > 75) urgencyColor = const Color(0xFFFF3B30); // critical
-    if (bssi > 90) urgencyColor = const Color(0xFF8B0000); // emergency
+    if (bssi > 75) urgencyColor = const Color(0xFF8B0000); // emergency
 
     if (_navigationLaunched) {
       final viewType = 'geoapify-map-${widget.notificationData['log_id']}-$_userLat-$_userLng';
@@ -1100,7 +1112,7 @@ class _AlertReceivedScreenState extends State<AlertReceivedScreen> {
                     left: 20,
                     right: 20,
                     child: Card(
-                      color: Colors.black.withOpacity(0.85),
+                      color: Colors.white,
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Row(
@@ -1113,17 +1125,17 @@ class _AlertReceivedScreenState extends State<AlertReceivedScreen> {
                                 children: [
                                   Text(
                                     data['bank_name'] ?? 'Target Blood Bank',
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF2C2C2C)),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
                                     data['bank_address'] ?? 'No address available',
-                                    style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 11),
+                                    style: const TextStyle(color: Color(0xFF64748B), fontSize: 11),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
                                     'Distance: ${data['distance_km'] ?? "0.0"} km | ETA: ${data['eta_minutes'] ?? "0"} mins',
-                                    style: const TextStyle(color: Colors.grey, fontSize: 12),
+                                    style: const TextStyle(color: Color(0xFF64748B), fontSize: 12),
                                   ),
                                 ],
                               ),
@@ -1138,7 +1150,10 @@ class _AlertReceivedScreenState extends State<AlertReceivedScreen> {
             ),
             Container(
               padding: const EdgeInsets.all(24),
-              color: const Color(0xFF1B1A22),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                border: Border(top: BorderSide(color: Color(0xFFE2E8F0))),
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -1153,7 +1168,7 @@ class _AlertReceivedScreenState extends State<AlertReceivedScreen> {
                       const SizedBox(height: 4),
                       Text(
                         'Distance: ${data['distance_km'] ?? 3.4} km',
-                        style: const TextStyle(color: Colors.grey),
+                        style: const TextStyle(color: Color(0xFF64748B)),
                       ),
                     ],
                   ),
@@ -1163,11 +1178,11 @@ class _AlertReceivedScreenState extends State<AlertReceivedScreen> {
                       state.clearNotification();
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
+                      backgroundColor: const Color(0xFF8B0000),
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: const Text('End Navigation', style: TextStyle(fontWeight: FontWeight.bold)),
+                    child: const Text('End Navigation', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
                   ),
                 ],
               ),
@@ -1178,7 +1193,7 @@ class _AlertReceivedScreenState extends State<AlertReceivedScreen> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0F0E13),
+      backgroundColor: const Color(0xFFFAF8F5),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -1218,6 +1233,7 @@ class _AlertReceivedScreenState extends State<AlertReceivedScreen> {
                 style: const TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
+                  color: Color(0xFF2C2C2C),
                 ),
               ),
               const SizedBox(height: 12),
@@ -1225,9 +1241,9 @@ class _AlertReceivedScreenState extends State<AlertReceivedScreen> {
               Text(
                 'The regional shortage index (BSSI) for your blood group has reached a warning level of $bssi. Your donation is requested immediately.',
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 14,
-                  color: Colors.white.withOpacity(0.5),
+                  color: Color(0xFF64748B),
                   height: 1.5,
                 ),
               ),
@@ -1240,13 +1256,13 @@ class _AlertReceivedScreenState extends State<AlertReceivedScreen> {
                   child: Column(
                     children: [
                       _buildAlertDetailRow('Blood Bank', data['bank_name'] ?? 'Blood Bank'),
-                      const Divider(height: 24),
+                      const Divider(height: 24, color: Color(0xFFE2E8F0)),
                       _buildAlertDetailRow('Address', data['bank_address'] ?? 'No address available'),
-                      const Divider(height: 24),
+                      const Divider(height: 24, color: Color(0xFFE2E8F0)),
                       _buildAlertDetailRow('Distance', '${data['distance_km'] ?? 3.4} km'),
-                      const Divider(height: 24),
+                      const Divider(height: 24, color: Color(0xFFE2E8F0)),
                       _buildAlertDetailRow('ETA to Center', '${data['eta_minutes'] ?? 8} minutes'),
-                      const Divider(height: 24),
+                      const Divider(height: 24, color: Color(0xFFE2E8F0)),
                       _buildAlertDetailRow('BSSI Urgency', '$bssi / 100', valueColor: urgencyColor),
                     ],
                   ),
@@ -1263,9 +1279,10 @@ class _AlertReceivedScreenState extends State<AlertReceivedScreen> {
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        side: BorderSide(color: Colors.white.withOpacity(0.1)),
+                        side: const BorderSide(color: Color(0xFFE2E8F0)),
+                        foregroundColor: const Color(0xFF64748B),
                       ),
-                      child: const Text('Cannot Donate', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
+                      child: const Text('Cannot Donate', style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -1273,7 +1290,7 @@ class _AlertReceivedScreenState extends State<AlertReceivedScreen> {
                     child: ElevatedButton(
                       onPressed: _isActioning ? null : () => _respondToAlert('accepted'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFFF3B30),
+                        backgroundColor: const Color(0xFF8B0000),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
@@ -1295,13 +1312,13 @@ class _AlertReceivedScreenState extends State<AlertReceivedScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: const TextStyle(color: Colors.grey)),
+        Text(label, style: const TextStyle(color: Color(0xFF64748B))),
         Text(
           value,
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 15,
-            color: valueColor ?? Colors.white,
+            color: valueColor ?? const Color(0xFF2C2C2C),
           ),
         ),
       ],

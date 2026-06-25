@@ -1,10 +1,15 @@
 import sys
 sys.path.append('.')
 from fastapi.testclient import TestClient
-from backend.main import app
+from backend.main import app, create_jwt_token
 import pytest
 
 client = TestClient(app)
+
+# Generate mock JWT tokens for testing role-based security
+bank_headers = {"Authorization": f"Bearer {create_jwt_token(1, 'bank_admin')}"}
+coord_headers = {"Authorization": f"Bearer {create_jwt_token(999, 'coordinator')}"}
+donor_headers = {"Authorization": f"Bearer {create_jwt_token(1, 'donor')}"}
 
 def test_auth_verify_token():
     # Test mock token verify
@@ -33,7 +38,7 @@ def test_auth_profile_setup():
     assert response.json()["status"] == "success"
 
 def test_get_inventory():
-    response = client.get("/inventory/1")
+    response = client.get("/inventory/1", headers=bank_headers)
     assert response.status_code == 200
     data = response.json()
     assert "O+" in data
@@ -62,7 +67,7 @@ def test_get_redistribution_suggestions():
     assert type(response.json()) is list
 
 def test_get_eligible_donors():
-    response = client.get("/donors/eligible/O+/1")
+    response = client.get("/donors/eligible/O+/1", headers=bank_headers)
     assert response.status_code == 200
     data = response.json()
     assert type(data) is list
@@ -72,7 +77,7 @@ def test_get_eligible_donors():
 
 def test_trigger_alert():
     # Trigger alert for bank 1, group O+
-    response = client.post("/alerts/trigger/1/O+")
+    response = client.post("/alerts/trigger/1/O+", headers=bank_headers)
     assert response.status_code == 200
     data = response.json()
     assert data["status"] in ["success", "no_eligible_donors"]

@@ -36,11 +36,16 @@ def ensure_database_exists():
     temp_engine = create_engine(DEFAULT_DB_URL, isolation_level="AUTOCOMMIT")
     try:
         with temp_engine.connect() as conn:
-            # Check if db exists
-            result = conn.execute(text(f"SELECT 1 FROM pg_database WHERE datname='{DB_NAME}'"))
+            # Check if db exists using parameterized queries
+            result = conn.execute(
+                text("SELECT 1 FROM pg_database WHERE datname = :dbname"),
+                {"dbname": DB_NAME}
+            )
             exists = result.scalar()
             if not exists:
-                conn.execute(text(f"CREATE DATABASE {DB_NAME}"))
+                # DDL identifiers cannot be parameterized, so we quote the database name to harden the query
+                safe_db_name = DB_NAME.replace('"', '""')
+                conn.execute(text(f'CREATE DATABASE "{safe_db_name}"'))
                 print(f"Database '{DB_NAME}' successfully created.")
             else:
                 print(f"Database '{DB_NAME}' already exists.")
